@@ -223,7 +223,7 @@ function bloqueado(m) {
   const li = el("li", "nodo bloq");
   li.append(el("span", "punto", "?"));
   const b = boton("", "misterio", () => revelar(true));
-  b.append(el("span", "mt", "Momento por descubrir"), el("span", "ms", m.p));
+  b.append(el("span", "mt", "Toque aqui para descubrir"), el("span", "ms", m.p));
   li.append(b);
   return li;
 }
