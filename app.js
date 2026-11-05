@@ -119,6 +119,37 @@ function barras(items) {
   return w;
 }
 
+async function capturar(zona, btns, compartir) {
+  const falla = () => { aviso.textContent = "No se pudo sacar la captura. Usá la captura de pantalla de tu dispositivo."; };
+  if (typeof html2canvas === "undefined") { falla(); return; }
+  btns.forEach(b => { b.disabled = true; });
+  try {
+    const canvas = await html2canvas(zona, {
+      backgroundColor: "#0e2230",
+      scale: 2,
+      onclone: doc => { const c = doc.querySelector(".rcap"); if (c) c.style.display = "none"; }
+    });
+    const blob = await new Promise(ok => canvas.toBlob(ok, "image/png"));
+    if (!blob) throw new Error("sin imagen");
+    const archivo = new File([blob], "patagonia-2007-puntaje.png", { type: "image/png" });
+    if (compartir && navigator.canShare && navigator.canShare({ files: [archivo] })) {
+      await navigator.share({ files: [archivo], title: "Patagonia, 2007" });
+    } else {
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = archivo.name;
+      document.body.append(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    }
+    aviso.textContent = compartir ? "Imagen del resultado lista" : "Imagen del resultado descargada";
+  } catch (e) {
+    if (e.name !== "AbortError") falla();
+  }
+  btns.forEach(b => { b.disabled = false; });
+}
+
 function quiz() {
   const w = el("div", "quiz");
   let i = 0, ok = 0;
@@ -156,9 +187,13 @@ function quiz() {
     const r = el("div", "resultado");
     const num = el("p", "rnum", String(pts));
     num.append(el("span", null, "/100"));
+    const acc = el("div", "rcap");
+    const btns = [];
+    btns.push(boton("📸 Sacar captura de pantalla", "rbtn", () => capturar(r, btns, false)));
+    if (navigator.share) btns.push(boton("📤 Compartir", "rbtn", () => capturar(r, btns, true)));
+    acc.append(...btns);
     r.append(el("p", "rtit", "Patagonia, 2007 · Cuestionario"), num,
-      el("p", null, "Acertaste " + ok + " de " + total + ". " + msg),
-      el("p", "rcap", "📸 Sacale una captura de pantalla a este resultado para mostrarlo."));
+      el("p", null, "Acertaste " + ok + " de " + total + ". " + msg), acc);
     w.replaceChildren(r, boton("Repetir el cuestionario", "rehacer", () => { i = 0; ok = 0; pregunta(); }));
     aviso.textContent = "Tu puntaje es " + pts + " sobre 100";
     r.scrollIntoView({ block: "center", behavior: reducido ? "auto" : "smooth" });
