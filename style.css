@@ -102,3 +102,6 @@ footer p{margin:.4rem 0}
 .rnum span{font-size:1.4rem;color:var(--tenue)}
 .tarjeta .rcap{margin:.8rem 0 0;padding-top:.8rem;border-top:1px solid rgba(241,240,228,.2);color:var(--miel);font-weight:600}
 .quiz .rehacer{margin-top:.8rem}
+.rbtn{display:block;width:100%;min-height:3rem;margin-top:.6rem;padding:.6rem 1rem;border-radius:2rem;border:1.5px solid var(--miel);background:none;color:var(--miel);font-weight:600}
+.rbtn:disabled{opacity:.6;cursor:default}
+@media(hover:hover){.rbtn:hover:not(:disabled){background:var(--miel);color:var(--noche)}}
